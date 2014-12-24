@@ -1,7 +1,8 @@
 import re
 from io import BytesIO
 
-from .data import Reader, Writer
+from .annotation import Annotation
+from .data import Reader, Writer, ENC
 from .utils import log, normalise_link
 
 class Prepare(object):
@@ -13,20 +14,7 @@ class Prepare(object):
         self.mapping = self.read_mapping(mapping)
 
     def __call__(self):
-        docs = list(Reader(open(self.fname)))
-        log.info('Read {} documents from {}'.format(len(docs), self.fname))
-        out = BytesIO()
-        w = Writer(out)
-        for doc in docs:
-            if self.keep and not self.keep.match(doc.doc_id):
-                continue
-            for m in doc.iter_links():
-                l = normalise_link(m.link)
-                if self.mapping:
-                    l = self.mapping.get(l, l)
-                m.link = l
-            w.write(doc)
-        return out.getvalue()
+        return u'\n'.join(unicode(a) for a in self.annotations()).encode(ENC)
 
     def read_mapping(self, mapping):
         if not mapping:
@@ -42,6 +30,21 @@ class Prepare(object):
                 redirects[title] = title
         return redirects
 
+    def annotations(self):
+        docs = list(Reader(open(self.fname)))
+        log.info('Read {} documents from {}'.format(len(docs), self.fname))
+        out = BytesIO()
+        w = Writer(out)
+        for doc in docs:
+            if self.keep and not self.keep.match(doc.doc_id):
+                continue
+            for m in doc.iter_links():
+                l = normalise_link(m.link)
+                if self.mapping:
+                    l = self.mapping.get(l, l)
+
+                yield Annotation(doc.doc_id, m.start, m.end, [l])
+        
     @classmethod
     def add_arguments(cls, p):
         p.add_argument('fname', metavar='FILE')

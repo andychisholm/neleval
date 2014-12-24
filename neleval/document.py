@@ -56,7 +56,7 @@ class Document(object):
                                  '\n{}\n{}'.format(issue, a, b))
             elif self.VALIDATION[issue] == 'warn':
                 b, a = instances[0]
-                warnings.warn('Found annotations with {} span:\n{}\n{}'.format(issue, a, b))
+                warnings.warn('Found annotations with {} span:\n{}\n{}'.format(issue, unicode(a).encode(ENC), unicode(b).encode(ENC)))
 
     def _set_fields(self):
         """Set fields on annotations that are relative to document"""

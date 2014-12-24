@@ -6,7 +6,7 @@ import textwrap
 import re
 import sys
 
-#from .prepare import Prepare
+from .prepare import Prepare
 from .evaluate import Evaluate
 from .analyze import Analyze
 from .significance import Significance, Confidence
@@ -24,7 +24,7 @@ APPS = [
     Analyze,
     Significance,
     Confidence,
-    #Prepare,
+    Prepare,
     #FilterMentions,
     #Unstitch,
     #Stitch,
